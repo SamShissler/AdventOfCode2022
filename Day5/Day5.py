@@ -8,33 +8,79 @@ Advent of Code 2022 Day 5
 
 """
 
-alph = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+import re
+from collections import deque
+from itertools import islice
+
+"""
+Part1
+"""
+f = open("input.txt", "r")
+
+stackTops = ""
+initialStacks = True
+stacks = []
+for line in f:
+    if(line.startswith(" 1")):
+        initialStacks = False    
+    elif(initialStacks):
+        s = re.findall('... ?',line)
+        if(stacks == []):
+            for i in s:
+                stacks.append(deque())
+        for i in range(len(s)):
+            s[i] = s[i].strip()
+            if(s[i] != ""):
+                stacks[i].appendleft(s[i][1:2])
+    elif(line != "\n"):
+        n, s1, s2 = re.findall('[0-9]+',line)
+        s1 = int(s1)-1
+        s2 = int(s2)-1
+        for i in range(int(n)):
+            if (stacks[s1]):
+                stacks[s2].append(stacks[s1].pop())
+for s in stacks:
+    stackTops += s[-1]
+#print(stacks)
+print(stackTops)
+f.close()
+
+"""
+Part 2
+"""
 
 f = open("input.txt", "r")
 
-numOfContained = 0
-numOfOverlapped = 0
-
+stackTops = ""
+initialStacks = True
+stacks = []
 for line in f:
-    isContained = 0
-    elf1, elf2 = line.strip().split(",")
-    elf1L, elf1H = elf1.split("-")
-    elf2L, elf2H = elf2.split("-")
-    #print(elf1L,elf1H,elf2L,elf2H)
-    if(int(elf1L) <= int(elf2L) and int(elf1H) >= int(elf2H)):
-        #print("elf1 contains elf2")
-        numOfContained += 1
-        numOfOverlapped += 1
-    elif(int(elf1L) >= int(elf2L) and int(elf1H) <= int(elf2H)):
-        #print("elf2 contains elf1")
-        numOfContained += 1
-        numOfOverlapped += 1
-    elif(int(elf1L) >= int(elf2L) and int(elf1L) <= int(elf2H)):
-        numOfOverlapped += 1
-    elif(int(elf2L)>=int(elf1L) and int(elf2L)<= int(elf1H)):
-        numOfOverlapped += 1
-
-print(numOfContained)
-print(numOfOverlapped)
+    if(line.startswith(" 1")):
+        initialStacks = False    
+    elif(initialStacks):
+        s = re.findall('... ?',line)
+        if(stacks == []):
+            for i in s:
+                stacks.append(deque())
+        for i in range(len(s)):
+            s[i] = s[i].strip()
+            if(s[i] != ""):
+                stacks[i].appendleft(s[i][1:2])
+    elif(line != "\n"):
+        n, s1, s2 = re.findall('[0-9]+',line)
+        n = int(n)
+        s1 = int(s1)-1
+        s2 = int(s2)-1
+        if (len(stacks[s1]))>=n:
+            substack = stacks[s1]
+            substack = list(substack)[len(substack)-n:]
+            stacks[s2].extend(substack)
+            newstack = stacks[s1]
+            newstack = list(newstack)[:len(newstack)-n]
+            stacks[s1]=deque(newstack)
+            
+for s in stacks:
+    stackTops += s[-1]
+#print(stacks)
+print(stackTops)
 f.close()
-
